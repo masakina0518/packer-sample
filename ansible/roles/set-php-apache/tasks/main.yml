@@ -1,0 +1,8 @@
+---
+- name: Copy httpd.conf to /etc/httpd/conf
+  template: src=httpd/conf/httpd.conf.j2 dest=/etc/httpd/conf/httpd.conf owner=root group=root mode=0644
+  notify: Restart httpd
+
+- name: Copy 00-mpm.conf to /etc/httpd/conf.modules.d
+  template: src=httpd/conf.modules.d/00-mpm.conf.j2 dest=/etc/httpd/conf.modules.d/00-mpm.conf owner=root group=root mode=0644
+  notify: Restart httpd

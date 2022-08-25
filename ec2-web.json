@@ -1,0 +1,44 @@
+{
+  "variables": {
+    "ansible_staging_directory": "/tmp/packer-provisioner-ansible-local"
+  },
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "region": "ap-northeast-1",
+      "source_ami": "ami-0f9ae750e8274075b",
+      "instance_type": "t2.micro",
+      "ssh_username": "ec2-user",
+      "ami_name": "WEB-{{ isotime | clean_resource_name }}",
+      "tags": {
+        "Name": "web-{{ isotime | clean_resource_name }}",
+        "Base_AMI_ID": "{{ .SourceAMI }}",
+        "Base_AMI_NAME": "{{ .SourceAMIName }}"
+      },
+      "profile": "aws-profile-name",
+      "force_deregister": true,
+      "force_delete_snapshot": true,
+      "ssh_pty": true
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+        "sudo yum -y update",
+        "sudo amazon-linux-extras install -y epel",
+        "sudo yum -y install ansible"
+      ]
+    },
+    {
+      "type": "file",
+      "source": "ansible/roles",
+      "destination": "{{ user `ansible_staging_directory` }}"
+    },
+    {
+      "type": "ansible-local",
+      "playbook_file": "./ansible/playbook.yml",
+      "staging_directory": "{{ user `ansible_staging_directory` }}"
+    }
+  ]
+}

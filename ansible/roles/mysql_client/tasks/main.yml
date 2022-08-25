@@ -1,0 +1,17 @@
+---
+- name: install MySQL GPG key
+  rpm_key:
+    state: present
+    key: https://repo.mysql.com/RPM-GPG-KEY-mysql-2022
+
+- name: register mysql repository
+  yum:
+    name: http://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
+    state: present
+
+- name: install mysql client
+  yum:
+    name: mysql-community-client
+    state: present
+    enablerepo: mysql57-community
+    disablerepo: mysql80-community

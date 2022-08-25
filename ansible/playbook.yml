@@ -1,0 +1,9 @@
+---
+- hosts: all
+  become: yes
+  roles:
+    - mysql_client
+    - httpd
+    - php
+    - set-php-apache
+    - test_file

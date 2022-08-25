@@ -1,0 +1,61 @@
+---
+- name: Install php from extras
+  block:
+    - name: Enable to php7.3.
+      shell: "amazon-linux-extras enable php7.3"
+      changed_when: False
+
+    - name: Install php7.3
+      yum:
+        name: ['php-cli','php-pdo','php-fpm','php-json','php-mysqlnd','php-common','php-devel','php-gd','php-mbstring','php-pear','php-opcache']
+        state: present 
+      notify: Restart php
+
+  become: yes
+
+- name: Copy php.ini to /etc/
+  template: src=php.ini.j2 dest=/etc/php.ini owner=root group=root mode=0644
+  notify: Restart php
+  become: yes
+
+- name: Copy www.conf to /etc/php-fpm.d/
+  template: src=php-fpm.d/www.conf.j2 dest=/etc/php-fpm.d/www.conf owner=root group=root mode=0644
+  notify: Restart php
+  become: yes
+
+#php setting
+#- lineinfile: dest=/etc/php.ini
+#    regexp=';date.timezone ='
+#    line='date.timezone = Asia/Tokyo'
+
+#- lineinfile: dest=/etc/php.ini
+#    regexp='session.gc_maxlifetime ='
+#    line='session.gc_maxlifetime = 1800'
+
+#- lineinfile: dest=/etc/php.ini
+#    regexp='memory_limit ='
+#    line='memory_limit = 256M'
+
+#php-fpm setting
+#- lineinfile: "dest=/etc/php-fpm.d/www.conf
+#        state=present
+#        regexp='^user = apache'
+#        line='user = nginx'"
+#- lineinfile: "dest=/etc/php-fpm.d/www.conf
+#        state=present
+#        regexp='^group = apache'
+#        line='group = nginx'"
+
+
+- name: enable php-fpm service
+  service: name=php-fpm enabled=yes state=started
+
+#- command: chown nginx /var/lib/php/session
+#- command: chgrp nginx /var/lib/php/session
+#apc setting
+#- lineinfile: dest=/etc/php.d/apc.ini
+#        regexp='apc.mmap_file_mask='
+#        line='apc.mmap_file_mask=/dev/zero'
+#- lineinfile: dest=/etc/php.d/apc.ini
+#        regexp='apc.shm_size='
+#        line='apc.shm_size=128M'
